@@ -1,4 +1,4 @@
-package com.challenge.vasconcelos.vasconcelos_crypto;
+package com.challenge.vasconcelos;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

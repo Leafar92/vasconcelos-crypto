@@ -8,7 +8,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.challenge.vasconcelos.api.feign.client.CoinCapClient;
-import com.challenge.vasconcelos.model.ApiResponse;
 import com.challenge.vasconcelos.model.Asset;
 import com.challenge.vasconcelos.repository.AssetRepository;
 import com.challenge.vasconcelos.service.AssetService;
@@ -23,22 +22,16 @@ public class AssetServiceImpl implements AssetService {
     private final ExecutorService executorService;
     private final AssetRepository assetRepository;
 
-    @Value("${price.update.interval}")
+    @Value("${price.update.job.interval}")
     private long updateInterval;
+
+    @Value("${price.update.intervalCalls.api}")
+    private long intervalCalls;
 
     public AssetServiceImpl(CoinCapClient coinCapClient, AssetRepository assetRepository) {
         this.coinCapClient = coinCapClient;
         this.executorService = Executors.newFixedThreadPool(3);
         this.assetRepository = assetRepository;
-    }
-
-    @Override
-    public ApiResponse getAssetByTokenExternal(String tokenName) {
-        var assetByToken = coinCapClient.getAssetByToken(tokenName);
-        if (assetByToken == null) {
-            throw new IllegalArgumentException("There is no token valid for the token provided" + tokenName);
-        }
-        return assetByToken;
     }
 
     @Override
@@ -48,14 +41,14 @@ public class AssetServiceImpl implements AssetService {
         return assetByToken;
     }
 
-    @Scheduled(fixedDelayString = "${price.update.interval}")
+    @Scheduled(fixedDelayString = "${price.update.job.interval}")
     public void fetchAndSaveAssets() {
         int offset = 0;
-        int limit = 3; // Fetch 3 assets per request
+        int limit = 3;
 
-        while (offset < 50) { // Stop when offset reaches 50
+        while (offset < 50) { // Stop when offset reaches 50 or while (true)
             try {
-                final int currentOffset = offset; // ✅ Make it final for lambda use
+                final int currentOffset = offset;
 
                 // Create 3 parallel fetch tasks with different offsets
                 CompletableFuture<List<Asset>> future1 = CompletableFuture
@@ -70,16 +63,24 @@ public class AssetServiceImpl implements AssetService {
                 List<Asset> assets2 = future2.get();
                 List<Asset> assets3 = future3.get();
 
+                // Stop if there are no more assets to fetch
+                // This should be the right condition to stop the method, but it is to much
+                // registers to be saved
+//                if (assets1.isEmpty() || assets2.isEmpty() || assets3.isEmpty()) {
+//                    System.out.println("✅ No more assets to fetch. Stopping.");
+//                    break;
+//                }
+
                 // Save fetched assets immediately
                 saveAssets(assets1);
                 saveAssets(assets2);
                 saveAssets(assets3);
 
                 // Move to the next batch
-                offset += limit * 3; // ✅ Now offset updates correctly
+                offset += limit * 3; //
 
                 // Sleep to respect API rate limits (configurable)
-                TimeUnit.MILLISECONDS.sleep(2000);
+                TimeUnit.MILLISECONDS.sleep(intervalCalls);
 
             } catch (Exception e) {
                 throw new RuntimeException("Error fetching or saving assets", e);
@@ -88,10 +89,10 @@ public class AssetServiceImpl implements AssetService {
 
         // Shutdown thread pool after completing all fetches
         executorService.shutdown();
-        log.info("✅ Fetching completed! Offset reached 50.");
+        log.info("Fetching completed! Offset reached 50.");
     }
 
-    private void saveAssets(List<Asset> assets) {
+    public void saveAssets(List<Asset> assets) {
         for (Asset asset : assets) {
             if (!assetRepository.existsBySymbol(asset.getSymbol())) {
                 assetRepository.save(asset);

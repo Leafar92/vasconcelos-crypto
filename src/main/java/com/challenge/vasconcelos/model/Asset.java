@@ -5,18 +5,15 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "assets")
 @Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Asset {
 
     @Id
@@ -32,27 +29,22 @@ public class Asset {
 
     private BigDecimal supply;
 
-    @JsonProperty("max_supply")
+    @Column(name = "max_supply")
     private BigDecimal maxSupply;
 
     @Column(name = "market_cap_usd")
-    @JsonProperty("marketCapUsd")
     private BigDecimal marketCapUsd;
 
     @Column(name = "volume_usd_24h")
-    @JsonProperty("volumeUsd24Hr")
     private BigDecimal volumeUsd24Hr;
 
     @Column(name = "price_usd")
-    @JsonProperty("priceUsd")
     private BigDecimal priceUsd;
 
     @Column(name = "change_percent_24h")
-    @JsonProperty("changePercent24Hr")
     private BigDecimal changePercent24Hr;
 
     @Column(name = "vwap_24h")
-    @JsonProperty("vwap24Hr")
     private BigDecimal vwap24Hr;
 
     private String explorer;

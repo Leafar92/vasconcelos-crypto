@@ -45,12 +45,12 @@ public class WalletServiceImpl implements WalletService {
 
         var assetByToken = assetService.getAssetBySymbol(request.getSymbol());
 
-//        if (assetByToken.getPriceUsd().compareTo(request.getPrice()) != 0) {
-//            log.info("The price provided {} is different from {}", request.getPrice(), assetByToken.getPriceUsd());
-//            throw new IllegalArgumentException(
-//                    String.format("The price provided %s is different from the real price %s", request.getPrice(),
-//                            assetByToken.getPriceUsd()));
-//        }
+        if (assetByToken.getPriceUsd().compareTo(request.getPrice()) != 0) {
+            log.info("The price provided {} is different from {}", request.getPrice(), assetByToken.getPriceUsd());
+            throw new IllegalArgumentException(
+                    String.format("The price provided %s is different from the real price %s", request.getPrice(),
+                            assetByToken.getPriceUsd()));
+        }
         WalletAsset walletAsset = new WalletAsset(wallet, assetByToken, request.getQuantity());
 
         wallet.getWalletAssets().add(walletAsset);
