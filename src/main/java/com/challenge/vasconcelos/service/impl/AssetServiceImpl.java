@@ -67,19 +67,16 @@ public class AssetServiceImpl implements AssetService {
                 // This should be the right condition to stop the method, but it is to much
                 // registers to be saved
 //                if (assets1.isEmpty() || assets2.isEmpty() || assets3.isEmpty()) {
-//                    System.out.println("✅ No more assets to fetch. Stopping.");
+//                   log.info(" No more assets to fetch. Stopping.");
 //                    break;
 //                }
 
-                // Save fetched assets immediately
                 saveAssets(assets1);
                 saveAssets(assets2);
                 saveAssets(assets3);
 
-                // Move to the next batch
                 offset += limit * 3; //
 
-                // Sleep to respect API rate limits (configurable)
                 TimeUnit.MILLISECONDS.sleep(intervalCalls);
 
             } catch (Exception e) {
@@ -87,7 +84,6 @@ public class AssetServiceImpl implements AssetService {
             }
         }
 
-        // Shutdown thread pool after completing all fetches
         executorService.shutdown();
         log.info("Fetching completed! Offset reached 50.");
     }
