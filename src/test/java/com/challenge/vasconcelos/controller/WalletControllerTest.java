@@ -72,4 +72,16 @@ class WalletControllerTest {
         mockMvc.perform(post("/api/v1/wallets/evaluate/{interval}", interval).contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))).andExpect(status().isOk());
     }
+
+    @Test
+    void testHandleIllegalArgumentException() throws Exception {
+        Mockito.doThrow(new IllegalArgumentException("Invalid data")).when(walletService).createWallet(email);
+        mockMvc.perform(post("/api/v1/wallets").param("email", email)).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void testHandleGenericException() throws Exception {
+        Mockito.doThrow(new RuntimeException("Unexpected error")).when(walletService).createWallet(email);
+        mockMvc.perform(post("/api/v1/wallets").param("email", email)).andExpect(status().isInternalServerError());
+    }
 }

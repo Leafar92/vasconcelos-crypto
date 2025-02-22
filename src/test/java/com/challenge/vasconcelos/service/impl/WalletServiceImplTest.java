@@ -45,8 +45,7 @@ class WalletServiceImplTest extends BaseSetup {
     }
 
     @Test
-    void testCreateWallet_Success() {
-
+    void testCreateWalletSuccess() {
         Mockito.doReturn(false).when(walletRespository).existsByEmail(email);
         Mockito.doAnswer(invocation -> invocation.getArgument(0)).when(walletRespository).save(any(Wallet.class));
 
@@ -58,7 +57,7 @@ class WalletServiceImplTest extends BaseSetup {
     }
 
     @Test
-    void testCreateWallet_Failure_DuplicateEmail() {
+    void testCreateWalletFailureDuplicateEmail() {
         Mockito.doReturn(true).when(walletRespository).existsByEmail(email);
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> walletService.createWallet(email));
@@ -66,7 +65,7 @@ class WalletServiceImplTest extends BaseSetup {
     }
 
     @Test
-    void testAddAssets_Success() {
+    void testAddAssetsSuccess() {
         WalletAssetRequestDTO request = new WalletAssetRequestDTO("BTC", BigDecimal.valueOf(30000), 1);
 
         Mockito.doReturn(Optional.of(wallet)).when(walletRespository).findByEmail(email);
@@ -80,7 +79,7 @@ class WalletServiceImplTest extends BaseSetup {
     }
 
     @Test
-    void testAddAssets_Failure_PriceMismatch() {
+    void testAddAssetsFailurePriceMismatch() {
         var asset = Asset.builder().priceUsd(BigDecimal.valueOf(25000)).id("BTC").name("bitcoin").build();
         WalletAssetRequestDTO request = new WalletAssetRequestDTO("BTC", BigDecimal.valueOf(20000), 1);
 
@@ -93,15 +92,13 @@ class WalletServiceImplTest extends BaseSetup {
     }
 
     @Test
-    void testGetAllWalletInfo_Success() {
+    void testGetAllWalletInfoSuccess() {
         var walletAsset = new WalletAsset(wallet, assetResponse, 1);
         wallet.getWalletAssets().add(walletAsset);
 
         Mockito.doReturn(Optional.of(wallet)).when(walletRespository).findByEmail(email);
-        // Act
         var walletInfo = walletService.getAllWalletInfo(email);
 
-        // Assert
         assertNotNull(walletInfo);
         assertEquals(email, walletInfo.getEmail());
         assertEquals(1, walletInfo.getAssets().size());
@@ -109,12 +106,9 @@ class WalletServiceImplTest extends BaseSetup {
     }
 
     @Test
-    void testGetAllWalletInfo_Failure_WalletNotFound() {
-        // Arrange
+    void testGetAllWalletInfoFailureWalletNotFound() {
         String email = "nonexistent@example.com";
         when(walletRespository.findByEmail(email)).thenReturn(Optional.empty());
-
-        // Act & Assert
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> walletService.getAllWalletInfo(email));
         assertEquals("No valid wallet found for email: " + email, exception.getMessage());

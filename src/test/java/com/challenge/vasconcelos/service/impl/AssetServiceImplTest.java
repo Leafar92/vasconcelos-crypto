@@ -48,14 +48,14 @@ class AssetServiceImplTest extends BaseSetup {
     }
 
     @Test
-    void testGetAssetBySymbol_Success() {
+    void testGetAssetBySymbolSuccess() {
         var asset = assetService.getAssetBySymbol(symbol);
         assertThat(asset).isNotNull();
         assertThat(symbol).isEqualTo(asset.getSymbol());
     }
 
     @Test
-    void testGetAssetBySymbol_Failure() {
+    void testGetAssetBySymbolFailure() {
         doReturn(Optional.empty()).when(assetRepository).findBySymbol(symbol);
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
                 () -> assetService.getAssetBySymbol(symbol));

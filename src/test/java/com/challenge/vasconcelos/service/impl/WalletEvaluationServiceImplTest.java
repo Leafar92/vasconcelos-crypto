@@ -44,7 +44,7 @@ class WalletEvaluationServiceImplTest extends BaseSetup {
     }
 
     @Test
-    void testEvaluateWallet_Success() {
+    void testEvaluateWalletSuccess() {
         WalletAssetInfoDTO btcAsset = new WalletAssetInfoDTO("BTC", BigDecimal.valueOf(20000), 1);
         WalletAssetInfoDTO ethAsset = new WalletAssetInfoDTO("ETH", BigDecimal.valueOf(5000), 2);
 
@@ -66,7 +66,7 @@ class WalletEvaluationServiceImplTest extends BaseSetup {
     }
 
     @Test
-    void testEvaluateWallet_Failure_NoHistory() {
+    void testEvaluateWalletFailureNoHistory() {
         WalletAssetInfoDTO btcAsset = new WalletAssetInfoDTO("BTC", BigDecimal.valueOf(20000), 1);
         WalletEvaluationRequestDTO request = new WalletEvaluationRequestDTO(List.of(btcAsset));
 
